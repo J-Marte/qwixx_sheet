@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.quixx">
+    package="com.example.qwixx">
    <application
-        android:label="quixx"
+        android:label="qwixx"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
+            android:screenOrientation="landscape"
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
