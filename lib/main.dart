@@ -1,4 +1,30 @@
+/*
+  MIT License
+
+  Copyright (c) [2022] [Johannes Marte]
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:qwixx/UI/number_tick.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,21 +33,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -31,16 +47,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -48,68 +54,195 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  final List<Color> colors = [
+    Colors.red,
+    Colors.yellow[700]!,
+    Colors.green,
+    Colors.blue,
+  ];
+  
+  final List<Color?> backgroundColors = [
+    Colors.red[100],
+    Colors.yellow[100],
+    Colors.green[100],
+    Colors.blue[100],
+  ];
+
+  final Map<int, int> crossToPoint = {
+    1: 1,
+    2: 3,
+    3: 6,
+    4: 10,
+    5: 15,
+    6: 21,
+    7: 28,
+    8: 36,
+    9: 45,
+    10: 55,
+    11: 66,
+    12: 78,
+  };
+
+  final List<List<bool>> values = List<List<bool>>.generate(4, (index) => List<bool>.generate(12, (index) => false));
+  final List<bool> wrongRolls = List<bool>.generate(4, (index) => false);
+
+  int countCrosses(int row){
+    int erg = 0;
+
+    for (int i = 0; i < values[row].length; i++){
+      if(values[row][i]) erg++;
+    }
+
+    return erg;
+  }
+
+  bool isEnabled(int row, int column){
+    for (int i = column + 1; i < values[row].length; i++){
+      if(values[row][i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int getPoints(){
+    int erg = 0;
+    for (int i = 0; i < 4; i++) {
+      int? temp = crossToPoint[countCrosses(i)];
+      if (temp != null) erg += temp;
+    }
+
+    for (int i = 0; i < wrongRolls.length; i++){
+      if(wrongRolls[i]) erg -= 5;
+    }
+
+    return erg;
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        toolbarHeight: 40,
         title: Text(widget.title),
+        actions: [
+          Container(
+            padding: const EdgeInsets.only(right: 15),
+            alignment: Alignment.center,
+            child: Text("Punkte: ${getPoints()}", style: const TextStyle(
+              fontSize: 24,
+            ),)
+          )
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          for (int i = 0; i < colors.length; i++)
+            Container(
+              decoration: BoxDecoration(
+                color: colors[i],
+                borderRadius: const BorderRadius.all(Radius.circular(10))
+              ),
+              margin: const EdgeInsets.only(right: 6, top: 3, bottom: 3, left: 15),
+              padding: const EdgeInsets.all(3),
+              child: Row(
+                children: [
+                  for (int j = 1; j < 12; j++)
+                    Expanded(child: NumberTick(color: colors[i], backgroundColor: backgroundColors[i]!, number: i < 2 ? (j + 1) : (13 - j), enabled: isEnabled(i, j - 1), value: values[i][j-1], onClick: (b) {
+                      setState(() {
+                        values[i][j-1] = b;
+                      });
+                    },)),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: (){
+                        if (countCrosses(i) > 4) {
+                          setState(() {
+                            values[i][11]= !values[i][11];
+                          });
+                        }else{
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            duration: Duration(seconds: 3),
+                            content: Text("Es müssen mindestens 4 Kreuzte in einer Reihe sein um diese Abzuschließen"),
+                          ));
+                        }
+                      },
+                      child: FractionallySizedBox(
+                        widthFactor: 0.7,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: ClipOval(
+                            child: Container(
+                              color: backgroundColors[i],
+                              child: Transform.rotate(
+                                angle: values[i][11] ? 0 : pi/4,
+                                child: Icon(values[i][11] ? Icons.lock_outline_rounded : Icons.lock_open_outlined, color: colors[i],)
+                              ),
+                            )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                ],
+              )
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          Expanded(child: 
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 6, right: 3, top: 3, bottom: 6), 
+                child: IntrinsicWidth(child: Column(
+                  children: [
+                    Expanded(child: Container(alignment: Alignment.center, child: const Text("Kreuze", style: TextStyle(fontSize: 20)))),
+                    const Divider(color: Colors.black, thickness: 1),
+                    Expanded(child: Container(alignment: Alignment.center, child: const Text("Punkte", style: TextStyle(fontSize: 20)))),
+                  ],
+                )),
+              ),
+              for (MapEntry e in crossToPoint.entries)
+                Expanded(child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(10))
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  margin: const EdgeInsets.only(left: 6, right: 1, top: 1, bottom: 6), 
+                  child: IntrinsicWidth(child: Column(
+                    children: [
+                      Expanded(child: Container(alignment: Alignment.center, child: Text("${e.key}x", style: const TextStyle(fontSize: 18)))),
+                      const Divider(color: Colors.black, thickness: 1),
+                      Expanded(child: Container(alignment: Alignment.center, child: Text(e.value.toString(), style: const TextStyle(fontSize: 18)))),
+                    ],
+                  )),
+                )),
+              Padding(
+                padding: const EdgeInsets.only(right: 6, left: 3, top: 3, bottom: 6), 
+                child: IntrinsicWidth(child: Column(
+                  children: [
+                    Expanded(child: Container(alignment: Alignment.center, child: const Text("Fehlwürfe je -5", style: TextStyle(fontSize: 18)))),
+                    Row(
+                      children: [
+                        for(int i = 0; i < wrongRolls.length; i++)
+                          Checkbox(
+                            value: wrongRolls[i],
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            onChanged: (b) { 
+                              setState(() {
+                                  wrongRolls[i] = b == true;
+                              });
+                           },
+                          ),
+                      ],
+                    )
+                  ],
+                )),
+              ),
+            ],
+          ))
+        ],
+      )
     );
   }
 }

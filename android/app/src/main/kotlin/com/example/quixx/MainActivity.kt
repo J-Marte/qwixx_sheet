@@ -1,4 +1,4 @@
-package com.example.quixx
+package com.example.qwixx
 
 import io.flutter.embedding.android.FlutterActivity
 
